@@ -7,13 +7,28 @@ contract IssuersContract {
     // Mapping UIDs to issuer public keys
     mapping(bytes16 => address) idTypes;
 
+    event AddIdType(
+      bytes16 idType,
+      address signer
+    );
+
     // Creates a new signer for ID type
     function addIdType(bytes16 idType) public returns (bool) {
         // Check if id type already exists
         require(address(0) == idTypes[idType], "idType already exists");
         idTypes[idType] = msg.sender;
+        emit AddIdType(idType, msg.sender);
         return true;
     }
+
+    // For logging
+    // event VerifyHash(
+    //   bytes32 message,
+    //   bytes signature,
+    //   bytes16 idType,
+    //   bytes32 ethMessageHash,
+    //   address recoveredSigner
+    // );
 
     // Verify an idHash (sha256 hash of a verifiable id) was issued by the owner of idType.
     function verifyIdType(
@@ -22,9 +37,9 @@ contract IssuersContract {
         bytes16 idType
     ) public view returns (bool) {
         if (address(0) == idTypes[idType]) return false;
-
         bytes32 hash = ECDSA.toEthSignedMessageHash(idHash);
         address signer = ECDSA.recover(hash, signature);
+        // emit VerifyHash(idHash, signature, idType, hash, signer);
         return signer == getSigner(idType);
     }
 
