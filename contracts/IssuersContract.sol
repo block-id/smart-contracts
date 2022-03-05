@@ -30,14 +30,14 @@ contract IssuersContract {
     //   address recoveredSigner
     // );
 
-    // Verify an idHash (sha256 hash of a verifiable id) was issued by the owner of idType.
-    function verifyIdType(
-        bytes32 idHash,
+    // Verify a signature for an idType.
+    function verifySignature(
+        bytes32 message,
         bytes memory signature,
         bytes16 idType
     ) public view returns (bool) {
         if (address(0) == idTypes[idType]) return false;
-        bytes32 hash = ECDSA.toEthSignedMessageHash(idHash);
+        bytes32 hash = ECDSA.toEthSignedMessageHash(message);
         address signer = ECDSA.recover(hash, signature);
         // emit VerifyHash(idHash, signature, idType, hash, signer);
         return signer == getSigner(idType);
