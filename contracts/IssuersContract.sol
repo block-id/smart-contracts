@@ -15,7 +15,9 @@ contract IssuersContract {
     // Creates a new signer for ID type
     function addIdType(bytes16 idType) public returns (bool) {
         // Check if id type already exists
+        if (idTypes[idType] == msg.sender) return true;
         require(address(0) == idTypes[idType], "idType already exists");
+        // Add id type
         idTypes[idType] = msg.sender;
         emit AddIdType(idType, msg.sender);
         return true;
@@ -39,7 +41,7 @@ contract IssuersContract {
         if (address(0) == idTypes[idType]) return false;
         bytes32 hash = ECDSA.toEthSignedMessageHash(message);
         address signer = ECDSA.recover(hash, signature);
-        // emit VerifyHash(idHash, signature, idType, hash, signer);
+        // emit VerifyHash(message, signature, idType, hash, signer);
         return signer == getSigner(idType);
     }
 
